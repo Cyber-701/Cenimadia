@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ movie.title }} - {{ movie.description|truncatewords:20 }}">
+    <title>🎬 {{ movie.title }} - Cinemadia</title>
+    
+    <!-- External CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #8b5cf6;
+            --primary-dark: #7c3aed;
+            --secondary: #ec4899;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --danger: #ef4444;
+            --bg-main: #0a0e27;
+            --bg-card: #141829;
+            --bg-hover: #1e2139;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+            --border: #1f2937;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(180deg, var(--bg-main) 0%, #050817 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        body:before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            margin-bottom: 30px;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+            transform: translateX(-5px);
+        }
+
+        .movie-header {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .movie-grid {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        .poster-section {
+            position: sticky;
+            top: 20px;
+        }
+
+        .poster {
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .poster img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .poster-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            display: flex;
+            align-items: flex-end;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .poster:hover .poster-overlay {
+            opacity: 1;
+        }
+
+        .movie-info h1 {
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .movie-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        .movie-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .rating {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, var(--accent), #f97316);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-weight: 900;
+            font-size: 16px;
+        }
+
+        .badges {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .badge {
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .badge.badge-hd {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+        }
+
+        .play-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+            margin-top: 20px;
+        }
+
+        .play-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(139, 92, 246, 0.6);
+        }
+
+        .play-btn i {
+            font-size: 20px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .player-wrap {
+            background: #000;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            padding-top: 56.25%;
+        }
+
+        .player-wrap video, .player-wrap iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .movie-description {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            background: var(--bg-hover);
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .info-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background: var(--bg-hover);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-main);
+            border-color: var(--primary);
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .related-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s;
+        }
+
+        .related-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(139, 92, 246, 0.3);
+            border-color: var(--primary);
+        }
+
+        .related-card img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+        }
+
+        .related-body {
+            padding: 15px;
+        }
+
+        .related-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+
+        .related-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        @media (max-width: 968px) {
+            .movie-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .poster-section {
+                position: relative;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .related-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 20px 15px;
+            }
+
+            .movie-header {
+                padding: 20px;
+            }
+
+            .movie-info h1 {
+                font-size: 24px;
+            }
+
+            .movie-grid {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{% url 'cinemadia:home' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Bosh sahifaga qaytish
+        </a>
+
+        <div class="movie-header">
+            <div class="movie-grid">
+                <!-- LEFT: Poster -->
+                <div class="poster-section">
+                    <div class="poster">
+                        <img src="{{ movie.get_poster }}" alt="{{ movie.title }}">
+                        <div class="poster-overlay">
+                            <i class="fas fa-play-circle" style="font-size: 48px; color: white;"></i>
+                        </div>
+                    </div>
+
+                    <div class="badges">
+                        <span class="badge badge-hd"><i class="fas fa-hd-video"></i> HD</span>
+                        <span class="badge"><i class="fas fa-closed-captioning"></i> Uzbekcha</span>
+                        <span class="badge"><i class="fas fa-clock"></i> {{ movie.duration }}</span>
+                    </div>
+
+                    <button class="play-btn" onclick="scrollToPlayer();">
+                        <i class="fas fa-play"></i> Filmni tomosha qilish
+                    </button>
+
+                    <div class="actions">
+                        <button class="btn-secondary">
+                            <i class="fas fa-heart"></i> Sevimlilar
+                        </button>
+                        <button class="btn-secondary">
+                            <i class="fas fa-share-alt"></i> Ulashish
+                        </button>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Info -->
+                <div class="movie-info">
+                    <h1>{{ movie.title }}</h1>
+
+                    <div class="movie-meta">
+                        <span><i class="fas fa-calendar"></i> {{ movie.year }}</span>
+                        <span><i class="fas fa-film"></i> {{ movie.genre }}</span>
+                        <span class="rating">
+                            <i class="fas fa-star"></i> {{ movie.rating }}
+                        </span>
+                    </div>
+
+                    <p class="movie-description">
+                        {{ movie.description }}
+                    </p>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Rejissyor</div>
+                            <div class="info-value">{{ movie.director }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Aktyorlar</div>
+                            <div class="info-value">{{ movie.actors|default:"—" }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Janr</div>
+                            <div class="info-value">{{ movie.genre }}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Davomiyligi</div>
+                            <div class="info-value">{{ movie.duration }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div style="color:var(--muted);font-size:13px">⭐ Reyting: 8.3</div>
+          </div>
+
+          <div style="margin-top:12px" class="player-wrap" id="playerWrap" role="region" aria-label="Video o'ynatuvchi">
+            <!-- VIDEO: o'zingizdagi litsenziyali mp4 yoki HLS manbaini shu yerga qo'ying -->
+            <!-- Misol: <video controls src="media/muhabbat.mp4"></video> -->
+            <video id="mainVideo" controls preload="metadata" poster="https://picsum.photos/seed/muhabbat/1200/675">
+              <!-- Agar sizda .vtt subtitr fayli bo'lsa, src-ni almashtiring -->
+              <source src="" type="video/mp4">
+              Sizning brauzeringiz video tegini qo‘llab-quvvatlamaydi.
+            </video>
+          </div>
+
+          <div class="desc">
+            <h3>Qisqacha mazmun</h3>
+            <p class="info">
+              Bu film — muhabbat va dushmanlik orasidagi noaniq chiziqlar haqida. Qahramonlar o‘zlari xohlagan yo‘lni tanlashga majbur bo‘ladilar va har bir qaror ularning hayotini tubdan o‘zgartiradi.
+            </p>
+
+            <h4 style="margin-top:12px">Texnik ma'lumot</h4>
+            <ul style="color:var(--muted);line-height:1.6">
+              <li>Format: MP4 / HLS (m3u8)</li>
+              <li>Video: 1920×1080</li>
+              <li>Audio: AAC</li>
+            </ul>
+
+            <div style="margin-top:12px;display:flex;gap:10px">
+              <button class="tab" onclick="downloadSample()">Yuklab olish (namuna)</button>
+              <a class="tab" href="#" onclick="reportIssue();return false;">Xato haqida xabar berish</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" style="margin-top:14px">
+          <h3 style="margin:0 0 10px 0">Tavsiya qilingan filmlar</h3>
+          <div class="grid-related" id="relatedGrid">
+            <!-- JS will populate -->
+          </div>
+        </section>
+
+        <section class="card" style="margin-top:14px">
+          <h3 style="margin:0 0 10px 0">Fikrlar (namuna)</h3>
+          <div style="color:var(--muted);font-size:13px">Fikr qoldirish funksiyasi server talab qiladi — bu joy faqat UI namunasi.</div>
+          <div style="margin-top:10px">
+            <textarea id="comment" placeholder="Fikringizni yozing..." style="width:100%;min-height:80px;border-radius:8px;padding:8px;background:#061222;border:1px solid rgba(255,255,255,0.02);color:#e6f0fb"></textarea>
+            <div style="margin-top:8px;display:flex;gap:8px">
+              <button class="tab" onclick="postComment()">Yuborish</button>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <footer>
+      &copy; 2025 — Bu sahifa faqat ta'limiy namuna. Iltimos, kontentni joylashtirishdan oldin mualliflik huquqi egalaridan ruxsat oling.
+    </footer>
+  </div>
+
+  <!-- Trailer modal -->
+  <div class="modal-backdrop" id="modal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true">
+      <button class="close" onclick="closeModal()" aria-label="Yopish">&times;</button>
+      <h3 style="margin-top:6px">Treyler — Muhabbat va Nafrat</h3>
+      <div style="margin-top:10px">
+        <!-- Treyler uchun embeddable YouTube yoki mp4 manbai qo'ying -->
+        <div style="background:#000;border-radius:8px;overflow:hidden;min-height:360px;display:flex;align-items:center;justify-content:center">
+          <iframe id="trailerFrame" width="100%" height="360" src="" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border:0"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // Scroll to player
+        function scrollToPlayer() {
+            document.getElementById('playerSection').scrollIntoView({
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+
+        // Console message
+        console.log('%c&ensp; CINEMADIA MOVIE', 'color: #8b5cf6; font-size: 24px; font-weight: bold;');
+        console.log('%cFilmdan bahramand bo\'ling!', 'color: #ec4899; font-size: 14px;');
+    </script>
+</body>
+</html>
