@@ -1,5 +1,8 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils.text import slugify
 
 class Movie(models.Model):
     title = models.CharField(max_length=200)
@@ -16,8 +19,10 @@ class Movie(models.Model):
     # Movie categories
     CATEGORY_CHOICES = [
         ('serial', 'Serial'),
-        ('tarjima_kino', 'Tarjima Kino'),
+        ('tarjima_kino', "Tarjima kinolar"),
         ('premyera', 'Premyera'),
+        ('hind', 'Hind kinolari'),
+        ('multfilm', 'Multfilmlar'),
         ('klassika', 'Klassika'),
         ('yangilik', 'Yangilik'),
         ('eng_yaxshi', 'Eng Yaxshi'),
@@ -48,3 +53,90 @@ class Movie(models.Model):
         if self.poster_file:
             return self.poster_file.url
         return self.poster_url
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.title)
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Film'
+        verbose_name_plural = 'Filmlar'
+
+
+class UserProfile(models.Model):
+    """Extended user profile"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    bio = models.TextField(blank=True, null=True)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    birth_date = models.DateField(blank=True, null=True)
+    favorite_genres = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.user.username} profili"
+
+
+class Favorite(models.Model):
+    """User's favorite movies"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favorites')
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='favorited_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'movie']
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.movie.title}"
+
+
+class Watchlist(models.Model):
+    """Movies user wants to watch later"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='watchlist')
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='in_watchlists')
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'movie']
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} watchlist - {self.movie.title}"
+
+
+class Review(models.Model):
+    """User reviews for movies"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='reviews')
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(10)]
+    )
+    comment = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    likes = models.ManyToManyField(User, related_name='liked_reviews', blank=True)
+    
+    class Meta:
+        unique_together = ['user', 'movie']
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.movie.title} ({self.rating}/10)"
+
+
+class WatchHistory(models.Model):
+    """Track what users have watched"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='watch_history')
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='watched_by')
+    watched_at = models.DateTimeField(auto_now_add=True)
+    progress = models.IntegerField(default=0)  # Percentage watched
+    
+    class Meta:
+        ordering = ['-watched_at']
+        verbose_name = 'Ko\'rilgan film'
+        verbose_name_plural = 'Ko\'rilgan filmlar'
+    
+    def __str__(self):
+        return f"{self.user.username} watched {self.movie.title}"

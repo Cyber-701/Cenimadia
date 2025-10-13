@@ -79,7 +79,10 @@
             --text-primary: #f9fafb;
             --text-secondary: #9ca3af;
             --border: #1f2937;
+            --header-height: 96px;
         }
+
+        html { scroll-padding-top: var(--header-height); }
 
         body {
             margin: 0;
@@ -137,6 +140,8 @@
             margin: 0 auto;
         }
 
+        .menu-toggle { display: none; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color:#fff; border:none; padding:10px 14px; border-radius:10px; font-weight:800; }
+
         .logotype {
             display: flex;
             align-items: center;
@@ -182,6 +187,12 @@
             align-items: center;
         }
 
+        @media (max-width: 768px) {
+            .menu-toggle { display: inline-flex; align-items:center; gap:8px; }
+            .navbar-nav { display: none; width: 100%; flex-direction: column; align-items: stretch; padding-top: 8px; }
+            .navbar-nav.open { display: flex; }
+        }
+
         .navbar-nav a {
             color: var(--text-secondary);
             text-decoration: none;
@@ -214,6 +225,20 @@
         .navbar-nav a:hover:before {
             width: 80%;
         }
+
+        /* ===== Dropdowns ===== */
+        .nav-item { position: relative; }
+        .dropdown-toggle:after { content: " \25BE"; font-size: 10px; opacity: .8; margin-left: 6px; }
+        .dropdown-menu { position: absolute; top: 100%; left: 0; background: #0f1329; border: 1px solid rgba(139,92,246,.25); border-radius: 10px; padding: 10px; display: none; min-width: 230px; box-shadow: 0 12px 30px rgba(0,0,0,.4); z-index: 1001; }
+        .dropdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
+        .dropdown-menu a { display: block; padding: 8px 10px; border-radius: 8px; background: transparent; color: var(--text-secondary); font-weight: 700; }
+        .dropdown-menu a:hover { background: rgba(139,92,246,.12); color: var(--text-primary); }
+        .nav-item:hover > .dropdown-menu { display: block; }
+        @media (max-width: 768px) {
+            .nav-item > .dropdown-menu { position: static; display: none; margin-top: 6px; }
+            .nav-item.open > .dropdown-menu { display: block; }
+        }
+        
 
         /* =========== USER BAR =========== */
         #user-bar {
@@ -334,7 +359,7 @@
         .big-slider .cs-item {
             position: relative;
             display: block;
-            height: 420px;
+            height: clamp(320px, 56vh, 720px); /* responsive hero */
             border-radius: 16px;
             overflow: hidden;
             margin: 0 12px;
@@ -395,9 +420,9 @@
 
         /* =========== MAIN CONTAINER =========== */
         .container {
-            max-width: 1600px;
+            max-width: min(96vw, 1760px);
             margin: 0 auto;
-            padding: 0 50px;
+            padding: 0 clamp(16px, 4vw, 50px);
         }
 
         /* =========== CATEGORY SECTIONS =========== */
@@ -406,7 +431,7 @@
         }
 
         .h-owl {
-            font-size: 32px;
+            font-size: clamp(18px, 2.2vw, 32px);
             font-weight: 900;
             margin-bottom: 30px;
             padding-bottom: 16px;
@@ -491,7 +516,7 @@
         .short-images {
             position: relative;
             width: 100%;
-            height: 320px;
+            height: clamp(220px, 28vw, 320px);
             overflow: hidden;
             background: #000;
             border-radius: 16px 16px 0 0;
@@ -782,9 +807,7 @@
                 justify-content: center;
             }
 
-            .big-slider .cs-item {
-                height: 320px;
-            }
+            .big-slider .cs-item { height: 420px; }
 
             .cs-title h1 {
                 font-size: 24px;
@@ -835,9 +858,7 @@
                 padding: 6px 10px;
             }
 
-            .big-slider .cs-item {
-                height: 250px;
-            }
+            .big-slider .cs-item { height: 300px; }
 
             .logo-text {
                 font-size: 24px;
@@ -902,12 +923,51 @@
     <a href="{% url 'cinemadia:home' %}" class="logotype">
       <span class="logo-text">CINEMADIA</span>
     </a>
+    <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i> Menu</button>
 
-    <ul class="navbar-nav">
+    <ul class="navbar-nav" id="mainMenu">
       <li><a href="{% url 'cinemadia:home' %}"><i class="fas fa-home"></i> Bosh sahifa</a></li>
-      <li><a href="#"><i class="fas fa-film"></i> Tarjima kinolar</a></li>
-      <li><a href="#"><i class="fas fa-tv"></i> Seriallar</a></li>
-      <li><a href="#"><i class="fas fa-star"></i> Premyeralar</a></li>
+
+      <li class="nav-item">
+        <a href="#" class="dropdown-toggle"><i class="fas fa-film"></i> Kinolar</a>
+        <div class="dropdown-menu">
+          <div class="dropdown-grid">
+            <a href="{% url 'cinemadia:category' 'tarjima_kino' %}">Tarjima kinolar</a>
+            <a href="{% url 'cinemadia:category' 'premyera' %}">Premyeralar</a>
+            <a href="{% url 'cinemadia:category' 'hind' %}">Hind kinolari</a>
+            <a href="{% url 'cinemadia:category' 'multfilm' %}">Multfilmlar</a>
+          </div>
+        </div>
+      </li>
+
+      <li><a href="{% url 'cinemadia:category' 'serial' %}"><i class="fas fa-tv"></i> Seriallar</a></li>
+
+      <li class="nav-item">
+        <a href="#" class="dropdown-toggle"><i class="fas fa-layer-group"></i> Janr</a>
+        <div class="dropdown-menu">
+          <div class="dropdown-grid">
+            <a href="{% url 'cinemadia:genre' 'jangari' %}">Jangari</a>
+            <a href="{% url 'cinemadia:genre' 'drama' %}">Drama</a>
+            <a href="{% url 'cinemadia:genre' 'komediya' %}">Komediya</a>
+            <a href="{% url 'cinemadia:genre' 'melodrama' %}">Melodrama</a>
+            <a href="{% url 'cinemadia:genre' 'sarguzasht' %}">Sarguzasht</a>
+            <a href="{% url 'cinemadia:genre' 'qorquv' %}">Qo'rqinchli</a>
+            <a href="{% url 'cinemadia:genre' 'tarixiy' %}">Tarixiy</a>
+            <a href="{% url 'cinemadia:genre' 'klassika' %}">Klassika</a>
+            <a href="{% url 'cinemadia:genre' 'fantastika' %}">Fantastika</a>
+            <a href="{% url 'cinemadia:genre' 'hayotiy' %}">Hayotiy</a>
+            <a href="{% url 'cinemadia:genre' 'triller' %}">Triller</a>
+            <a href="{% url 'cinemadia:genre' 'detektiv' %}">Detektiv</a>
+            <a href="{% url 'cinemadia:genre' 'hujjatli' %}">Hujjatli</a>
+            <a href="{% url 'cinemadia:genre' 'anime' %}">Anime</a>
+            <a href="{% url 'cinemadia:genre' 'kriminal' %}">Kriminal</a>
+            <a href="{% url 'cinemadia:genre' 'fentezi' %}">Fentezi</a>
+            <a href="{% url 'cinemadia:genre' 'afsona' %}">Afsona</a>
+            <a href="{% url 'cinemadia:genre' 'vester' %}">Vester</a>
+            <a href="{% url 'cinemadia:genre' 'musiqiy' %}">Musiqiy</a>
+          </div>
+        </div>
+      </li>
     </ul>
   </div>
 
@@ -933,19 +993,22 @@
             </a>
           </li>
           <li>
-            <a href="{% url 'cinemadia:profile' %}" class="nav-login-user" style="background: var(--orange-color);">
+            <a href="{% url 'cinemadia:register' %}" class="nav-login-user" style="background: var(--primary);">
               Ro'yxatdan o'tish
             </a>
           </li>
         {% endif %}
       </ul>
 
-      <form action="#" method="get" class="searchbar">
-        <input type="text" name="q" class="searchbar-input" placeholder="🎬 Film yoki serial qidiring...">
+      <form action="{% url 'cinemadia:home' %}" method="get" class="searchbar">
+        <input type="text" name="q" value="{{ query }}" class="searchbar-input" placeholder=" Film yoki serial qidiring...">
         <button type="submit" class="searchbar-btn"><i class="fas fa-search"></i></button>
       </form>
     </div>
   </div>
+</div>
+
+  
 </div>
 
 <!-- Big Slider - Featured Movies -->
@@ -1208,6 +1271,24 @@ $(document).ready(function(){
   // Console Easter Egg
   console.log('%c🎬 CINEMADIA', 'color: #8b5cf6; font-size: 32px; font-weight: bold;');
   console.log('%cYangi va eski filmlarni yuqori sifatda tomosha qiling!', 'color: #ec4899; font-size: 14px;');
+
+  // Mobile menu toggle
+  const menuToggle = document.getElementById('menuToggle');
+  const mainMenu = document.getElementById('mainMenu');
+  if (menuToggle && mainMenu) {
+    menuToggle.addEventListener('click', () => {
+      mainMenu.classList.toggle('open');
+    });
+  }
+
+  // Touch-friendly dropdowns
+  $('#mainMenu .nav-item > .dropdown-toggle').on('click', function(e) {
+    if (window.matchMedia('(max-width: 768px)').matches) {
+      e.preventDefault();
+      const li = $(this).closest('.nav-item');
+      li.toggleClass('open');
+    }
+  });
 });
 </script>
 

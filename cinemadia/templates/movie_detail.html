@@ -537,9 +537,17 @@
                     </button>
 
                     <div class="actions">
-                        <button class="btn-secondary">
-                            <i class="fas fa-heart"></i> Sevimlilar
+                        <button class="btn-secondary" id="favoriteBtn" data-movie-id="{{ movie.id }}">
+                            <i class="fas fa-heart"></i>
+                            <span id="favoriteBtnText">Sevimlilar</span>
                         </button>
+                        <button class="btn-secondary" id="watchlistBtn" data-movie-id="{{ movie.id }}">
+                            <i class="fas fa-list"></i>
+                            <span id="watchlistBtnText">Ko'rish ro'yxati</span>
+                        </button>
+                        <a class="btn-secondary" href="{% url 'cinemadia:add_review' movie.id %}">
+                            <i class="fas fa-comment"></i> Fikr qoldirish
+                        </a>
                         <button class="btn-secondary">
                             <i class="fas fa-share-alt"></i> Ulashish
                         </button>
@@ -673,6 +681,13 @@
     </div>
 
     <script>
+        // CSRF helper
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
         // Video Player
         const video = document.getElementById('videoPlayer');
         const playerWrap = document.getElementById('playerWrap');
@@ -834,6 +849,67 @@
         // Console message
         console.log('%c🎬 CINEMADIA MOVIE', 'color: #8b5cf6; font-size: 24px; font-weight: bold;');
         console.log('%cFilmdan bahramand bo\'ling!', 'color: #ec4899; font-size: 14px;');
+
+        // Favorite & Watchlist AJAX
+        const favoriteBtn = document.getElementById('favoriteBtn');
+        const watchlistBtn = document.getElementById('watchlistBtn');
+        const favoriteBtnText = document.getElementById('favoriteBtnText');
+        const watchlistBtnText = document.getElementById('watchlistBtnText');
+        const csrfToken = getCookie('csrftoken');
+
+        function requireAuthRedirect() {
+            window.location.href = "{% url 'login' %}?next={{ request.path|urlencode }}";
+        }
+
+        async function postToggle(url) {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            if (!response.ok) throw new Error('Server error');
+            return await response.json();
+        }
+
+        if (favoriteBtn) {
+            favoriteBtn.addEventListener('click', async () => {
+                {% if not user.is_authenticated %}
+                requireAuthRedirect();
+                return;
+                {% endif %}
+                const movieId = favoriteBtn.getAttribute('data-movie-id');
+                favoriteBtn.disabled = true;
+                try {
+                    const data = await postToggle('{% url "cinemadia:toggle_favorite" 0 %}'.replace('0', movieId));
+                    favoriteBtnText.textContent = data.is_favorite ? "Sevimlilardan o'chirish" : "Sevimlilar";
+                } catch (e) {
+                    alert("Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.");
+                } finally {
+                    favoriteBtn.disabled = false;
+                }
+            });
+        }
+
+        if (watchlistBtn) {
+            watchlistBtn.addEventListener('click', async () => {
+                {% if not user.is_authenticated %}
+                requireAuthRedirect();
+                return;
+                {% endif %}
+                const movieId = watchlistBtn.getAttribute('data-movie-id');
+                watchlistBtn.disabled = true;
+                try {
+                    const data = await postToggle('{% url "cinemadia:toggle_watchlist" 0 %}'.replace('0', movieId));
+                    watchlistBtnText.textContent = data.in_watchlist ? "Ro'yxatdan o'chirish" : "Ko'rish ro'yxati";
+                } catch (e) {
+                    alert("Xatolik yuz berdi. Iltimos, qayta urinib ko'ring.");
+                } finally {
+                    watchlistBtn.disabled = false;
+                }
+            });
+        }
     </script>
 </body>
 </html>
