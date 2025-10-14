@@ -339,7 +339,7 @@
         /* =========== HERO SLIDER =========== */
         #slider-bar {
             background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(236, 72, 153, 0.08));
-            padding: 40px 0 50px;
+            padding: 40px 0 40px;
             margin-bottom: 50px;
             position: relative;
         }
@@ -359,31 +359,49 @@
             display: none;
         }
 
+        .big-slider {
+            padding: 30px 0 50px;
+            margin: 0 -15px;
+        }
+
         .big-slider .cs-item {
             position: relative;
             display: block;
-            height: clamp(320px, 56vh, 720px); /* responsive hero */
+            height: 65vh;
+            min-height: 450px;
+            max-height: 700px;
+            width: 90%;
+            max-width: 1450px;
+            margin: 0 auto;
             border-radius: 16px;
             overflow: hidden;
-            margin: 0 12px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .big-slider .cs-item:hover {
             transform: translateY(-10px);
-            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 25px 80px rgba(139, 92, 246, 0.4);
         }
 
         .big-slider .cs-item img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            object-position: center top;
+            border-radius: 16px;
+            transform-origin: center;
+            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .big-slider .cs-item:hover img {
-            transform: scale(1.15);
+            transform: scale(1);
+        }
+
+        .big-slider .owl-stage-outer {
+            padding: 30px 0;
+            margin: -30px 0;
+            overflow: visible;
         }
 
         .cs-text {
@@ -391,17 +409,48 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.5), transparent);
-            padding: 80px 40px 40px;
+            background: linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 40%, rgba(0,0,0,0) 100%);
+            padding: 30px 40px 40px;
+            z-index: 2;
+            border-radius: 0 0 16px 16px;
         }
 
         .cs-title h1 {
-            font-size: 32px;
+            font-size: 42px;
             font-weight: 900;
             color: white;
             text-shadow: 0 4px 20px rgba(0, 0, 0, 0.8);
             letter-spacing: -0.5px;
-            line-height: 1.2;
+            line-height: 1.1;
+            margin: 0 0 5px;
+        }
+
+        @media (max-width: 1200px) {
+            .big-slider .cs-item {
+                height: 65vh;
+                min-height: 450px;
+            }
+            
+            .cs-title h1 {
+                font-size: 36px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .big-slider .cs-item {
+                height: 60vh;
+                min-height: 400px;
+                border-radius: 16px;
+                margin: 0 15px;
+            }
+            
+            .cs-text {
+                padding: 60px 30px 30px;
+            }
+            
+            .cs-title h1 {
+                font-size: 28px;
+            }
         }
 
         .cs-item .fa-play-circle {
@@ -425,13 +474,14 @@
         .container {
             max-width: min(96vw, 1760px);
             margin: 0 auto;
-            padding: 0 clamp(16px, 4vw, 50px);
+            padding: 20px clamp(16px, 4vw, 50px) 50px;
         }
 
         /* =========== CATEGORY SECTIONS =========== */
         .owl-cat {
-            margin-bottom: 70px;
+            margin: 40px 0 70px;
             overflow: visible;
+            position: relative;
         }
 
         .h-owl {
@@ -504,14 +554,23 @@
             display: flex;
             flex-direction: column;
             position: relative;
+            margin: 0;
+            transform: translateY(25px);
         }
 
         .shortstory:hover {
-            transform: translateY(-20px) scale(1.02);
-            box-shadow: 0 25px 70px rgba(139, 92, 246, 0.4);
+            transform: translateY(0) scale(1.03);
+            box-shadow: 0 30px 80px rgba(139, 92, 246, 0.4);
             border-color: var(--primary);
             z-index: 100;
             position: relative;
+        }
+
+        .shortstory-in {
+            padding: 40px 1px 35px;
+            margin: -30px 5px 20px;
+            position: relative;
+            z-index: 1;
         }
 
         .pulse-red {
@@ -1058,7 +1117,7 @@
   <!-- All Movies Section -->
   <div class="owl-cat owl-blue">
     <h2 class="h-owl"><a href="#">🎥 Barcha Filmlar</a></h2>
-    <div class="owl-carousel home-carousel" style="overflow: visible; padding: 20px 0;">
+    <div class="owl-carousel home-carousel" style="overflow: visible; padding: 5px 50px 80px; margin: -60px -px -80px;">
       {% for movie in movies %}
       <div class="shortstory-in">
         <div class="shortstory {% cycle 'pulse-red' 'pulse-yellow' 'pulse-range' '' '' '' %}">
