@@ -28,6 +28,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/logo.css' %}">
+    <link rel="stylesheet" href="{% static 'css/telegram-widget.css' %}">
     
     <style>
         * {
@@ -428,6 +431,7 @@
         /* =========== CATEGORY SECTIONS =========== */
         .owl-cat {
             margin-bottom: 70px;
+            overflow: visible;
         }
 
         .h-owl {
@@ -506,7 +510,8 @@
             transform: translateY(-20px) scale(1.02);
             box-shadow: 0 25px 70px rgba(139, 92, 246, 0.4);
             border-color: var(--primary);
-            z-index: 10;
+            z-index: 100;
+            position: relative;
         }
 
         .pulse-red {
@@ -920,8 +925,12 @@
 <!-- Header -->
 <div id="header">
   <div class="navbar">
-    <a href="{% url 'cinemadia:home' %}" class="logotype">
-      <span class="logo-text">CINEMADIA</span>
+    <a href="{% url 'cinemadia:home' %}" class="cinemadia-logo">
+      <div class="logo-icon"></div>
+      <div>
+        <span class="logo-text">CINEMADIA</span>
+        <span class="logo-domain">.com</span>
+      </div>
     </a>
     <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i> Menu</button>
 
@@ -1006,9 +1015,7 @@
       </form>
     </div>
   </div>
-</div>
-
-  
+<!-- header wrapper yopildi -->
 </div>
 
 <!-- Big Slider - Featured Movies -->
@@ -1051,7 +1058,7 @@
   <!-- All Movies Section -->
   <div class="owl-cat owl-blue">
     <h2 class="h-owl"><a href="#">🎥 Barcha Filmlar</a></h2>
-    <div class="owl-carousel home-carousel">
+    <div class="owl-carousel home-carousel" style="overflow: visible; padding: 20px 0;">
       {% for movie in movies %}
       <div class="shortstory-in">
         <div class="shortstory {% cycle 'pulse-red' 'pulse-yellow' 'pulse-range' '' '' '' %}">
@@ -1095,8 +1102,7 @@
   </div>
 </div>
 
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- Font Awesome already included in <head>; removed duplicate include -->
 
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -1290,7 +1296,41 @@ $(document).ready(function(){
     }
   });
 });
+
+// Telegram widget functionality
+function openTelegram() {
+  window.open('https://t.me/cinemadia_uz', '_blank');
+}
+
+// Scroll to top functionality
+const scrollToTopBtn = document.getElementById('scrollToTop');
+if (scrollToTopBtn) {
+  window.addEventListener('scroll', () => {
+    if (window.pageYOffset > 300) {
+      scrollToTopBtn.classList.add('visible');
+    } else {
+      scrollToTopBtn.classList.remove('visible');
+    }
+  });
+
+  scrollToTopBtn.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+}
 </script>
+
+<!-- Floating Telegram Widget -->
+<div class="telegram-widget">
+  <div class="scroll-to-top" id="scrollToTop">
+    <i class="fas fa-chevron-up"></i>
+  </div>
+  <div class="telegram-button" onclick="openTelegram()">
+    <i class="fab fa-telegram telegram-icon"></i>
+  </div>
+</div>
 
 </body>
 </html>

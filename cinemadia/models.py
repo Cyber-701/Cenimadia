@@ -26,6 +26,30 @@ class Movie(models.Model):
         ('klassika', 'Klassika'),
         ('yangilik', 'Yangilik'),
         ('eng_yaxshi', 'Eng Yaxshi'),
+        ('jangari', 'Jangari'),
+        ('drama', 'Drama'),
+        ('komediya', 'Komediya'),
+        ('melodrama', 'Melodrama'),
+        ('sarguzasht', 'Sarguzasht'),
+        ('qorquv', 'Qo\'rqinchli'),
+        ('tarixiy', 'Tarixiy'),
+        ('fantastika', 'Fantastika'),
+        ('hayotiy', 'Hayotiy'),
+        ('triller', 'Triller'),
+        ('detektiv', 'Detektiv'),
+        ('hujjatli', 'Hujjatli'),
+        ('anime', 'Anime'),
+        ('kriminal', 'Kriminal'),
+        ('fentezi', 'Fentezi'),
+        ('afsona', 'Afsona'),
+        ('vester', 'Vester'),
+        ('musiqiy', 'Musiqiy'),
+        ('romantik', 'Romantik'),
+        ('oilaviy', 'Oilaviy'),
+        ('jangovar', 'Jangovar'),
+        ('mistik', 'Mistik'),
+        ('ilmiy', 'Ilmiy'),
+        ('sport', 'Sport'),
     ]
     
     category = models.CharField(
@@ -140,3 +164,4 @@ class WatchHistory(models.Model):
     
     def __str__(self):
         return f"{self.user.username} watched {self.movie.title}"
+   

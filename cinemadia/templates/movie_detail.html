@@ -1,13 +1,10 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{{ movie.title }} - {{ movie.description|truncatewords:20 }}">
-    <title>🎬 {{ movie.title }} - Cinemadia</title>
-    
-    <!-- External CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}🎬 {{ movie.title }} - Cinemadia.com{% endblock %}
+{% block description %}{{ movie.title }} - {{ movie.description|truncatewords:20 }}{% endblock %}
+
+{% block extra_css %}
     
     <style>
         * {
@@ -508,8 +505,9 @@
             }
         }
     </style>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
     <div class="container">
         <a href="{% url 'cinemadia:home' %}" class="back-link">
             <i class="fas fa-arrow-left"></i> Bosh sahifaga qaytish
@@ -911,5 +909,4 @@
             });
         }
     </script>
-</body>
-</html>
+{% endblock %}
