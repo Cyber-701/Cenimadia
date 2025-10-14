@@ -9,7 +9,7 @@ from django.views.decorators.http import require_POST
 from .models import Movie, Favorite, Watchlist, Review, WatchHistory, UserProfile
 from .forms import CustomUserCreationForm, ReviewForm, UserProfileForm
 from collections import defaultdict
-
+  
 # Create your views here.
 def home(request):
     # Search functionality
