@@ -25,7 +25,7 @@ def home(request):
     else:
         movies = Movie.objects.all().order_by('-created_at')
     
-    # Pagination
+    # Paginationn
     paginator = Paginator(movies, 12)  # 12 movies per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
