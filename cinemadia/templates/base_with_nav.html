@@ -1,46 +1,33 @@
 <!DOCTYPE html>
-{% load static %}
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Cinemadia.uz - Eng Yaxshi Onlayn Kinoteatr{% endblock %}</title>
-    <meta name="description" content="{% block description %}Eng yaxshi filmlar va seriallar yuqori sifatda tomosha qiling. Cinemadia.uz - sizning sevimli kinoteatringiz.{% endblock %}">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
-    
-    <!-- Preconnect for better performance -->
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://code.jquery.com">
+    <title>{% block title %}Cinemadia - Eng Yaxshi Onlayn Kinoteatr{% endblock %}</title>
     
     <!-- External CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
-    <link rel="stylesheet" href="{% static 'css/logo.css' %}">
-    <link rel="stylesheet" href="{% static 'css/telegram-widget.css' %}">
     
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
             --primary: #8b5cf6;
             --primary-dark: #7c3aed;
             --secondary: #ec4899;
             --accent: #f59e0b;
             --success: #10b981;
+            --danger: #ef4444;
             --bg-main: #0a0e27;
             --bg-card: #141829;
             --bg-hover: #1e2139;
             --text-primary: #f9fafb;
             --text-secondary: #9ca3af;
             --border: #1f2937;
-            --header-height: 96px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
         }
 
         body {
@@ -72,7 +59,7 @@
             z-index: 1;
         }
 
-        /* Header Styles */
+        /* =========== HEADER =========== */
         #header {
             position: sticky;
             top: 0;
@@ -82,6 +69,12 @@
             border-bottom: 1px solid rgba(139, 92, 246, 0.2);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
+        }
+
+        #header.scrolled {
+            background: rgba(10, 14, 39, 0.98);
+            box-shadow: 0 6px 40px rgba(0, 0, 0, 0.5);
+            border-bottom-color: rgba(139, 92, 246, 0.4);
         }
 
         .navbar {
@@ -94,6 +87,13 @@
         }
 
         .menu-toggle { display: none; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color:#fff; border:none; padding:10px 14px; border-radius:10px; font-weight:800; }
+
+        .cinemadia-logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            position: relative;
+        }
 
         .logo-text {
             font-size: 32px;
@@ -121,6 +121,12 @@
             align-items: center;
         }
 
+        @media (max-width: 768px) {
+            .menu-toggle { display: inline-flex; align-items:center; gap:8px; }
+            .navbar-nav { display: none; width: 100%; flex-direction: column; align-items: stretch; padding-top: 8px; }
+            .navbar-nav.open { display: flex; }
+        }
+
         .navbar-nav a {
             color: var(--text-secondary);
             text-decoration: none;
@@ -138,9 +144,25 @@
             transform: translateY(-2px);
         }
 
-        /* Dropdowns */
+        .navbar-nav a:before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+
+        .navbar-nav a:hover:before {
+            width: 80%;
+        }
+
+        /* ===== Dropdowns ===== */
         .nav-item { position: relative; }
-        .dropdown-toggle:after { content: " ▾"; font-size: 10px; opacity: .8; margin-left: 6px; }
+        .dropdown-toggle:after { content: " \25BE"; font-size: 10px; opacity: .8; margin-left: 6px; }
         
         .dropdown-menu { 
             position: absolute; 
@@ -192,8 +214,28 @@
             from { opacity: 0; transform: translate(-50%, 10px); }
             to { opacity: 1; transform: translate(-50%, 0); }
         }
+        
+        @media (max-width: 768px) {
+            .dropdown-menu {
+                position: static;
+                transform: none;
+                min-width: 100%;
+                max-height: 300px;
+            }
+            .nav-item > .dropdown-menu { 
+                display: none; 
+                margin-top: 8px;
+                padding: 10px;
+            }
+            .nav-item.open > .dropdown-menu { 
+                display: block; 
+            }
+            .dropdown-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
 
-        /* User Bar */
+        /* =========== USER BAR =========== */
         #user-bar {
             background: rgba(0, 0, 0, 0.6);
             padding: 18px 0;
@@ -249,7 +291,8 @@
             transition: all 0.3s;
         }
 
-        .searchbar:focus-within {
+        .searchbar:focus-within,
+        .searchbar.focused {
             border-color: var(--primary);
             box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
             transform: translateY(-2px);
@@ -285,7 +328,18 @@
             transform: scale(1.05);
         }
 
-        /* Footer Styles */
+        /* =========== MAIN CONTENT =========== */
+        .main-content {
+            padding: 40px 0;
+        }
+
+        .container {
+            max-width: min(96vw, 1760px);
+            margin: 0 auto;
+            padding: 0 clamp(16px, 4vw, 50px);
+        }
+
+        /* =========== FOOTER =========== */
         #footer {
             background: linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.95));
             padding: 60px 0 30px;
@@ -319,104 +373,90 @@
             position: relative;
         }
 
+        .footer-text a:before {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s;
+        }
+
+        .footer-text a:hover:before {
+            width: 100%;
+        }
+
         .footer-text a:hover {
             color: var(--secondary);
         }
 
-        /* Responsive */
+        /* =========== RESPONSIVE =========== */
         @media (max-width: 768px) {
-            .menu-toggle { display: inline-flex; align-items:center; gap:8px; }
-            .navbar-nav { display: none; width: 100%; flex-direction: column; align-items: stretch; padding-top: 8px; }
-            .navbar-nav.open { display: flex; }
-            .navbar { flex-direction: column; gap: 20px; padding: 20px; }
-            .infobar { flex-direction: column; gap: 20px; padding: 0 20px; }
-            .searchbar { max-width: 100%; }
-            .dropdown-menu { position: static; transform: none; min-width: 100%; max-height: 300px; }
-            .nav-item > .dropdown-menu { display: none; margin-top: 8px; padding: 10px; }
-            .nav-item.open > .dropdown-menu { display: block; }
-            .dropdown-grid { grid-template-columns: 1fr 1fr; }
+            .navbar {
+                flex-direction: column;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .infobar {
+                flex-direction: column;
+                gap: 20px;
+                padding: 0 20px;
+            }
+
+            .searchbar {
+                max-width: 100%;
+            }
+
+            .nav-login {
+                width: 100%;
+                justify-content: center;
+            }
         }
+
+        {% block extra_css %}{% endblock %}
     </style>
-    
-    {% block extra_css %}{% endblock %}
 </head>
 <body>
+    {% include 'navbar.html' %}
+    
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+    
+    {% include 'footer.html' %}
 
-<!-- Include Navbar -->
-{% include 'navbar.html' %}
+    <script>
+        // Mobile menu toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            const menu = document.getElementById('mainMenu');
+            menu.classList.toggle('open');
+        });
 
-<!-- Main Content -->
-{% block content %}{% endblock %}
+        // Dropdown toggle for mobile
+        document.querySelectorAll('.dropdown-toggle').forEach(function(toggle) {
+            toggle.addEventListener('click', function(e) {
+                if (window.innerWidth <= 768) {
+                    e.preventDefault();
+                    const parent = this.parentElement;
+                    parent.classList.toggle('open');
+                }
+            });
+        });
 
-<!-- Include Footer -->
-{% include 'footer.html' %}
+        // Header scroll effect
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
 
-<!-- jQuery -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Owl Carousel JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
-
-{% block extra_js %}{% endblock %}
-
-<script>
-$(document).ready(function(){
-    // Mobile menu toggle
-    $('#menuToggle').click(function(){
-        $('#mainMenu').toggleClass('open');
-    });
-
-    // Mobile dropdown toggle
-    $('.nav-item .dropdown-toggle').click(function(e){
-        if ($(window).width() <= 768) {
-            e.preventDefault();
-            $(this).parent().toggleClass('open');
-        }
-    });
-
-    // Close mobile menu when clicking outside
-    $(document).click(function(e) {
-        if (!$(e.target).closest('.navbar').length) {
-            $('#mainMenu').removeClass('open');
-            $('.nav-item').removeClass('open');
-        }
-    });
-});
-
-// Telegram widget functionality
-function openTelegram() {
-  window.open('https://t.me/cinemadia_uz', '_blank');
-}
-
-// Scroll to top functionality
-const scrollToTopBtn = document.getElementById('scrollToTop');
-if (scrollToTopBtn) {
-  window.addEventListener('scroll', () => {
-    if (window.pageYOffset > 300) {
-      scrollToTopBtn.classList.add('visible');
-    } else {
-      scrollToTopBtn.classList.remove('visible');
-    }
-  });
-
-  scrollToTopBtn.addEventListener('click', () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  });
-}
-</script>
-
-<!-- Floating Telegram Widget -->
-<div class="telegram-widget">
-  <div class="scroll-to-top" id="scrollToTop">
-    <i class="fas fa-chevron-up"></i>
-  </div>
-  <div class="telegram-button" onclick="openTelegram()">
-    <i class="fab fa-telegram telegram-icon"></i>
-  </div>
-</div>
-
+        {% block extra_js %}{% endblock %}
+    </script>
 </body>
 </html>

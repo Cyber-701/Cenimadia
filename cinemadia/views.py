@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from .models import Movie, Favorite, Watchlist, Review, WatchHistory, UserProfile
+from .models import Movie, Favorite, Watchlist, Review, WatchHistory, UserProfile, MovieVote
 from .forms import CustomUserCreationForm, ReviewForm, UserProfileForm
 from collections import defaultdict
   
@@ -37,10 +37,16 @@ def home(request):
     for movie in Movie.objects.all()[:30]:  # Limit for performance
         movies_by_category[movie.category].append(movie)
     
+    # Get popular and random movies
+    popular_movies = get_popular_movies()
+    random_movies = get_random_movies()
+    
     context = {
         'movies': page_obj,
         'featured_movie': featured_movie,
         'movies_by_category': movies_by_category,
+        'popular_movies': popular_movies,
+        'random_movies': random_movies,
         'query': query,
         'total_count': movies.count() if query else Movie.objects.count(),
     }
@@ -49,10 +55,21 @@ def home(request):
 def movie_detail(request, slug):
     movie = get_object_or_404(Movie, slug=slug)
     movies = Movie.objects.exclude(id=movie.id)[:6]  # Related movies
+    
+    # Get user's vote if authenticated
+    user_vote = None
+    if request.user.is_authenticated:
+        try:
+            vote = MovieVote.objects.get(user=request.user, movie=movie)
+            user_vote = vote.vote_type
+        except MovieVote.DoesNotExist:
+            user_vote = None
+    
     context = {
         'movie': movie,
         'movies': movies,
         'related_movies': movies,
+        'user_vote': user_vote,
     }
     return render(request, 'movie_detail.html', context)
 
@@ -252,3 +269,84 @@ def watchlist_view(request):
         'watchlist': page_obj,
         'total_count': watchlist.count()
     })
+
+
+@login_required
+@require_POST
+def vote_movie(request, movie_id):
+    """Handle movie like/dislike votes"""
+    movie = get_object_or_404(Movie, id=movie_id)
+    vote_type = request.POST.get('vote_type')
+    
+    if vote_type not in ['like', 'dislike']:
+        return JsonResponse({'error': 'Invalid vote type'}, status=400)
+    
+    # Get or create vote
+    vote, created = MovieVote.objects.get_or_create(
+        user=request.user,
+        movie=movie,
+        defaults={'vote_type': vote_type}
+    )
+    
+    # If vote exists and is different, update it
+    if not created and vote.vote_type != vote_type:
+        # Remove old vote count
+        if vote.vote_type == 'like':
+            movie.likes_count = max(0, movie.likes_count - 1)
+        else:
+            movie.dislikes_count = max(0, movie.dislikes_count - 1)
+        
+        # Update vote type
+        vote.vote_type = vote_type
+        vote.save()
+    elif not created and vote.vote_type == vote_type:
+        # User clicked same vote - remove it
+        vote.delete()
+        if vote_type == 'like':
+            movie.likes_count = max(0, movie.likes_count - 1)
+        else:
+            movie.dislikes_count = max(0, movie.dislikes_count - 1)
+        movie.save()
+        
+        return JsonResponse({
+            'success': True,
+            'likes_count': movie.likes_count,
+            'dislikes_count': movie.dislikes_count,
+            'user_vote': None
+        })
+    
+    # Add new vote count
+    if vote_type == 'like':
+        movie.likes_count += 1
+    else:
+        movie.dislikes_count += 1
+    
+    movie.save()
+    
+    return JsonResponse({
+        'success': True,
+        'likes_count': movie.likes_count,
+        'dislikes_count': movie.dislikes_count,
+        'user_vote': vote_type
+    })
+
+
+def get_popular_movies():
+    """Get popular movies based on votes and engagement"""
+    from django.db.models import F, Case, When, IntegerField
+    
+    movies = Movie.objects.annotate(
+        total_votes=F('likes_count') + F('dislikes_count'),
+        popularity_score=Case(
+            When(total_votes=0, then=0),
+            default=(F('likes_count') * 100 / F('total_votes')) + (F('total_votes') / 10),
+            output_field=IntegerField()
+        )
+    ).filter(total_votes__gt=0).order_by('-popularity_score')[:10]
+    
+    return movies
+
+
+def get_random_movies():
+    """Get random movies for carousel"""
+    return Movie.objects.order_by('?')[:15]

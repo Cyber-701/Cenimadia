@@ -66,6 +66,10 @@ class Movie(models.Model):
     video_url = models.URLField(blank=True, null=True)
     trailer_url = models.URLField(blank=True, null=True)
     
+    # Like/Dislike fields
+    likes_count = models.PositiveIntegerField(default=0)
+    dislikes_count = models.PositiveIntegerField(default=0)
+    
     # Timestamp fields
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -77,6 +81,20 @@ class Movie(models.Model):
         if self.poster_file:
             return self.poster_file.url
         return self.poster_url
+    
+    def get_popularity_score(self):
+        """Calculate popularity score based on likes, dislikes, and views"""
+        total_votes = self.likes_count + self.dislikes_count
+        if total_votes == 0:
+            return 0
+        
+        # Calculate percentage of likes
+        like_percentage = (self.likes_count / total_votes) * 100
+        
+        # Boost score based on total engagement
+        engagement_boost = min(total_votes / 10, 50)  # Max 50 point boost
+        
+        return like_percentage + engagement_boost
     
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -164,4 +182,24 @@ class WatchHistory(models.Model):
     
     def __str__(self):
         return f"{self.user.username} watched {self.movie.title}"
+
+
+class MovieVote(models.Model):
+    """User votes (like/dislike) for movies"""
+    VOTE_CHOICES = [
+        ('like', 'Like'),
+        ('dislike', 'Dislike'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='movie_votes')
+    movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='votes')
+    vote_type = models.CharField(max_length=10, choices=VOTE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'movie']
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.movie.title} ({self.vote_type})"
    

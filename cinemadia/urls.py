@@ -17,6 +17,7 @@ urlpatterns = [
     path('movie/<int:movie_id>/favorite/', views.toggle_favorite, name='toggle_favorite'),
     path('movie/<int:movie_id>/watchlist/', views.toggle_watchlist, name='toggle_watchlist'),
     path('movie/<int:movie_id>/review/', views.add_review, name='add_review'),
+    path('movie/<int:movie_id>/vote/', views.vote_movie, name='vote_movie'),
     
     # User lists
     path('favorites/', views.favorites_list, name='favorites'),

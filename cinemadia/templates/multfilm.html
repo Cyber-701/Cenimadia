@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="uz">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multfilmlar - Cinemadia</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { margin: 0; font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#0a0e27; color:#f9fafb; }
-        .container { max-width: min(96vw, 1760px); margin: 0 auto; padding: clamp(16px, 4vw, 50px); }
+{% extends 'base_with_nav.html' %}
+
+{% block title %}Multfilmlar - Cinemadia{% endblock %}
+
+{% block extra_css %}
         .page-title { font-size: clamp(18px, 2.2vw, 32px); font-weight: 900; margin: 10px 0 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
         .card { background:#141829; border:1px solid #1f2937; border-radius:14px; overflow:hidden; text-decoration:none; color:inherit; transition: transform .2s ease, box-shadow .2s ease; }
@@ -24,14 +19,10 @@
         .page-link { padding:8px 12px; border-radius:10px; background:#1e2139; color:#fff; text-decoration:none; border:1px solid #2b2f4a; font-weight:700; }
         .page-link[aria-current="page"] { background:#8b5cf6; border-color:#8b5cf6; }
         .badge-cartoon { position: absolute; top: 8px; right: 8px; background: linear-gradient(135deg, #ff6b81, #ffa8b8); color: white; padding: 4px 8px; border-radius: 12px; font-size: 10px; font-weight: 900; }
-    </style>
-</head>
-<body>
+{% endblock %}
+
+{% block content %}
   <div class="container">
-    <div class="topbar">
-      <a class="back" href="{% url 'cinemadia:home' %}"><i class="fas fa-arrow-left"></i> Orqaga</a>
-      <div class="count">Jami: {{ total_count }}</div>
-    </div>
     <h1 class="page-title">🎭 Multfilmlar</h1>
 
     <div class="grid">
@@ -63,5 +54,4 @@
     </div>
     {% endif %}
   </div>
-</body>
-</html>
+{% endblock %}

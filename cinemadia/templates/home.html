@@ -166,22 +166,11 @@
             position: relative;
         }
 
-        .logo-text:before {
-            content: '🎬';
-            position: absolute;
-            left: -40px;
-            animation: rotate 4s linear infinite;
-        }
-
         @keyframes gradientShift {
             0%, 100% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
         }
 
-        @keyframes rotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
 
         .navbar-nav {
             display: flex;
@@ -232,14 +221,76 @@
         /* ===== Dropdowns ===== */
         .nav-item { position: relative; }
         .dropdown-toggle:after { content: " \25BE"; font-size: 10px; opacity: .8; margin-left: 6px; }
-        .dropdown-menu { position: absolute; top: 100%; left: 0; background: #0f1329; border: 1px solid rgba(139,92,246,.25); border-radius: 10px; padding: 10px; display: none; min-width: 230px; box-shadow: 0 12px 30px rgba(0,0,0,.4); z-index: 1001; }
-        .dropdown-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
-        .dropdown-menu a { display: block; padding: 8px 10px; border-radius: 8px; background: transparent; color: var(--text-secondary); font-weight: 700; }
-        .dropdown-menu a:hover { background: rgba(139,92,246,.12); color: var(--text-primary); }
-        .nav-item:hover > .dropdown-menu { display: block; }
+        
+        .dropdown-menu { 
+            position: absolute; 
+            top: 100%; 
+            left: -90%; 
+            transform: translateX(-50%);
+            background: #0f1329; 
+            border: 1px solid rgba(139,92,246,.25); 
+            border-radius: 10px; 
+            padding: 15px; 
+            display: none; 
+            min-width: 500px; 
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 12px 30px rgba(0,0,0,.4); 
+            z-index: 1001; 
+        }
+        
+        .dropdown-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 8px 15px; 
+        }
+        
+        .dropdown-menu a { 
+            display: block; 
+            padding: 8px 12px; 
+            border-radius: 8px; 
+            background: rgba(139, 92, 246, 0.05); 
+            color: var(--text-secondary); 
+            font-weight: 600; 
+            font-size: 14px;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+        
+        .dropdown-menu a:hover { 
+            background: rgba(139,92,246,.15); 
+            color: var(--text-primary); 
+            transform: translateY(-2px);
+        }
+        
+        .nav-item:hover > .dropdown-menu { 
+            display: block; 
+            animation: fadeIn 0.2s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, 10px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        
         @media (max-width: 768px) {
-            .nav-item > .dropdown-menu { position: static; display: none; margin-top: 6px; }
-            .nav-item.open > .dropdown-menu { display: block; }
+            .dropdown-menu {
+                position: static;
+                transform: none;
+                min-width: 100%;
+                max-height: 300px;
+            }
+            .nav-item > .dropdown-menu { 
+                display: none; 
+                margin-top: 8px;
+                padding: 10px;
+            }
+            .nav-item.open > .dropdown-menu { 
+                display: block; 
+            }
+            .dropdown-grid {
+                grid-template-columns: 1fr 1fr;
+            }
         }
         
 
@@ -361,7 +412,7 @@
 
         .big-slider {
             padding: 30px 0 50px;
-            margin: 0 -15px;
+            margin: 0 15px;
         }
 
         .big-slider .cs-item {
@@ -770,6 +821,7 @@
             box-shadow: 0 4px 15px rgba(139, 92, 246, 0.5);
         }
 
+
         /* =========== FOOTER =========== */
         #footer {
             background: linear-gradient(180deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.95));
@@ -985,10 +1037,8 @@
 <div id="header">
   <div class="navbar">
     <a href="{% url 'cinemadia:home' %}" class="cinemadia-logo">
-      <div class="logo-icon"></div>
       <div>
-        <span class="logo-text">CINEMADIA</span>
-        <span class="logo-domain">.com</span>
+        <span class="logo-text">CINEMADIA.uz</span>
       </div>
     </a>
     <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i> Menu</button>
@@ -1156,7 +1206,7 @@
       &copy; 2025 <a href="{% url 'cinemadia:home' %}">Cinemadia.uz</a> - Eng Yaxshi Onlayn Kinoteatr
     </p>
     <p class="footer-text" style="margin-top: 15px; font-size: 14px;">
-      <i class="fas fa-heart" style="color: #ec4899;"></i> Barcha huquqlar himoyalangan | Ta'lim maqsadida yaratilgan
+      <i class="fas fa-heart" style="color: #ec4899;"></i> Barcha huquqlar Cinemadia.uz tomonidan himoyalangan!
     </p>
   </div>
 </div>
@@ -1193,6 +1243,76 @@ $(document).ready(function(){
       },
       1024: {
         items: 1
+      }
+    }
+  });
+
+  // Popular Movies Carousel
+  $('.popular-carousel').owlCarousel({
+    loop: true,
+    margin: 20,
+    nav: true,
+    dots: false,
+    autoplay: true,
+    autoplayTimeout: 4000,
+    autoplayHoverPause: true,
+    smartSpeed: 600,
+    navText: ['<i class="fas fa-chevron-left"></i>', '<i class="fas fa-chevron-right"></i>'],
+    responsive: {
+      0: {
+        items: 2,
+        margin: 10
+      },
+      480: {
+        items: 3,
+        margin: 15
+      },
+      768: {
+        items: 4,
+        margin: 20
+      },
+      1024: {
+        items: 5,
+        margin: 20
+      },
+      1200: {
+        items: 6,
+        margin: 20
+      }
+    }
+  });
+
+  // Random Movies Carousel - Auto-rotating
+  $('.random-carousel').owlCarousel({
+    loop: true,
+    margin: 20,
+    nav: true,
+    dots: false,
+    autoplay: true,
+    autoplayTimeout: 3000,
+    autoplayHoverPause: true,
+    smartSpeed: 800,
+    navText: ['<i class="fas fa-chevron-left"></i>', '<i class="fas fa-chevron-right"></i>'],
+    responsive: {
+      0: {
+        items: 2,
+        margin: 10
+      },
+      480: {
+        items: 3,
+        margin: 15
+      },
+      768: {
+        items: 4,
+        margin: 20
+      },
+      1024: {
+        items: 5,
+        margin: 20
+      },
+      1200: {
+        items: 6,
+        margin: 20
       }
     }
   });
@@ -1334,7 +1454,7 @@ $(document).ready(function(){
   }
 
   // Console Easter Egg
-  console.log('%c🎬 CINEMADIA', 'color: #8b5cf6; font-size: 32px; font-weight: bold;');
+  console.log('%cCINEMADIA', 'color: #8b5cf6; font-size: 32px; font-weight: bold;');
   console.log('%cYangi va eski filmlarni yuqori sifatda tomosha qiling!', 'color: #ec4899; font-size: 14px;');
 
   // Mobile menu toggle
@@ -1358,7 +1478,7 @@ $(document).ready(function(){
 
 // Telegram widget functionality
 function openTelegram() {
-  window.open('https://t.me/cinemadia_uz', '_blank');
+  window.open('https://t.me/uzbekchakinolar60', '_blank');
 }
 
 // Scroll to top functionality
